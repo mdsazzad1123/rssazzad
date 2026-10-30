@@ -1,0 +1,482 @@
+ <!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RS SAAZAD - Bulk NID Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        .container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+        }
+        .header-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a73e8;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eef2f7;
+            padding-bottom: 8px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        input[type="text"], input[type="number"], input[type="file"], input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+        .random-btn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            margin-top: 5px;
+        }
+        .random-btn:hover {
+            background-color: #e68a00;
+        }
+        .action-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+        .action-btn:hover {
+            background-color: #1557b0;
+        }
+        .action-btn:disabled {
+            background-color: #b0c4de;
+            cursor: not-allowed;
+        }
+        .position-controls {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            margin: 10px 0;
+            background: #eef2f7;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .pos-btn {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .pos-btn:active {
+            background-color: #0f5132;
+        }
+        .canvas-container {
+            margin-top: 15px;
+            width: 100%;
+            overflow-x: auto;
+        }
+        canvas {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: grab;
+            display: none;
+        }
+        canvas:active {
+            cursor: grabbing;
+        }
+        .size-display {
+            font-size: 13px;
+            color: #555;
+            margin-top: 4px;
+            font-weight: bold;
+        }
+        .preview-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+            align-items: center;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .preview-item {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 8px;
+            background: #fafafa;
+            text-align: center;
+        }
+        .preview-item img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+        .preview-item p {
+            margin-top: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #555;
+        }
+        .download-btn {
+            background-color: #28a745;
+            display: none;
+            margin-top: 20px;
+            text-decoration: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            text-align: center;
+        }
+        .download-btn:hover {
+            background-color: #218838;
+        }
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-title">RS SAAZAD</div>
+        
+        <div class="form-group">
+            <label for="nidNumber">10 Digit NID Number:</label>
+            <input type="text" id="nidNumber" maxlength="10" placeholder="Enter 10 digit number">
+            <button type="button" id="randomBtn" class="random-btn">Random Number</button>
+        </div>
+
+        <div class="form-group">
+            <label for="cardCount">How many cards to generate (Max 100):</label>
+            <input type="number" id="cardCount" min="1" max="100" value="10">
+        </div>
+
+        <button type="button" id="nextBtn" class="action-btn">Next</button>
+
+        <div id="imageSection" style="display: none; margin-top: 20px;">
+            <div class="form-group">
+                <label for="imageUpload">Upload Card Image:</label>
+                <input type="file" id="imageUpload" accept="image/*">
+            </div>
+
+            <div class="form-group">
+                <label for="fontSizeRange">Font Size (10 - 100):</label>
+                <input type="range" id="fontSizeRange" min="10" max="100" value="30">
+                <div class="size-display">Current Size: <span id="sizeValue">30</span>px</div>
+            </div>
+
+            <label style="font-size: 13px; font-weight: bold; margin-bottom: 5px; text-align: left; display: block;">Fine Position Controls:</label>
+            <div class="position-controls">
+                <div></div>
+                <button type="button" class="pos-btn" id="moveUp">▲ Up</button>
+                <div></div>
+                <button type="button" class="pos-btn" id="moveLeft">◀ Left</button>
+                <button type="button" class="pos-btn" id="resetPos">⊙ Center</button>
+                <button type="button" class="pos-btn" id="moveRight">Right ▶</button>
+                <div></div>
+                <button type="button" class="pos-btn" id="moveDown">▼ Down</button>
+                <div></div>
+            </div>
+
+            <div class="canvas-container">
+                <canvas id="nidCanvas"></canvas>
+            </div>
+
+            <button type="button" id="generateBtn" class="action-btn">Generate</button>
+        </div>
+
+        <div class="preview-list" id="previewList"></div>
+
+        <a id="downloadBtn" class="download-btn">Download All Cards</a>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+    <script>
+        const nidNumberInput = document.getElementById('nidNumber');
+        const randomBtn = document.getElementById('randomBtn');
+        const cardCountInput = document.getElementById('cardCount');
+        const nextBtn = document.getElementById('nextBtn');
+        const imageSection = document.getElementById('imageSection');
+        const imageUpload = document.getElementById('imageUpload');
+        const fontSizeRange = document.getElementById('fontSizeRange');
+        const sizeValue = document.getElementById('sizeValue');
+        const canvas = document.getElementById('nidCanvas');
+        const ctx = canvas.getContext('2d');
+        const generateBtn = document.getElementById('generateBtn');
+        const previewList = document.getElementById('previewList');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        const moveUpBtn = document.getElementById('moveUp');
+        const moveDownBtn = document.getElementById('moveDown');
+        const moveLeftBtn = document.getElementById('moveLeft');
+        const moveRightBtn = document.getElementById('moveRight');
+        const resetPosBtn = document.getElementById('resetPos');
+
+        let uploadedImage = new Image();
+        let imageLoaded = false;
+        let textX = 0;
+        let textY = 0;
+        let isDragging = false;
+        let textWidth = 0;
+        let textHeight = 0;
+        let generatedCardsData = [];
+        let usedNids = new Set();
+        let downloadedHashes = new Set();
+
+        function generateUniqueRandom10Digit() {
+            let result;
+            let invalidPrefixes = ['013', '014', '015', '016', '017', '018', '019'];
+            do {
+                result = '';
+                result += Math.floor(Math.random() * 9) + 1;
+                for (let i = 0; i < 9; i++) {
+                    result += Math.floor(Math.random() * 10);
+                }
+            } while (usedNids.has(result) || invalidPrefixes.some(p => result.startsWith(p)));
+            
+            usedNids.add(result);
+            return result;
+        }
+
+        randomBtn.addEventListener('click', function() {
+            let rnd = generateUniqueRandom10Digit();
+            nidNumberInput.value = rnd;
+        });
+
+        nextBtn.addEventListener('click', function() {
+            const nidVal = nidNumberInput.value.trim();
+            if (nidVal.length !== 10) {
+                alert('Please enter a valid 10-digit NID number or click Random.');
+                return;
+            }
+            usedNids.add(nidVal);
+            imageSection.style.display = 'block';
+            nextBtn.style.display = 'none';
+        });
+
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImage.onload = function() {
+                        canvas.width = uploadedImage.width;
+                        canvas.height = uploadedImage.height;
+                        textX = canvas.width * 0.44;
+                        textY = canvas.height * 0.865;
+                        let defSize = Math.floor(canvas.width * 0.052);
+                        fontSizeRange.value = defSize;
+                        sizeValue.innerText = defSize;
+                        redrawCanvas();
+                        canvas.style.display = 'block';
+                        imageLoaded = true;
+                    }
+                    uploadedImage.src = event.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        fontSizeRange.addEventListener('input', function() {
+            sizeValue.innerText = fontSizeRange.value;
+            redrawCanvas();
+        });
+
+        const step = 5;
+        moveUpBtn.addEventListener('click', () => { textY -= step; redrawCanvas(); });
+        moveDownBtn.addEventListener('click', () => { textY += step; redrawCanvas(); });
+        moveLeftBtn.addEventListener('click', () => { textX -= step; redrawCanvas(); });
+        moveRightBtn.addEventListener('click', () => { textX += step; redrawCanvas(); });
+        resetPosBtn.addEventListener('click', () => {
+            if (!imageLoaded) return;
+            textX = canvas.width * 0.44;
+            textY = canvas.height * 0.865;
+            redrawCanvas();
+        });
+
+        function redrawCanvas() {
+            if (!imageLoaded) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(uploadedImage, 0, 0);
+
+            const currentText = nidNumberInput.value.trim();
+            const fontSize = parseInt(fontSizeRange.value);
+            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.fillStyle = '#ff0000';
+            
+            const metrics = ctx.measureText(currentText);
+            textWidth = metrics.width;
+            textHeight = fontSize;
+
+            ctx.fillText(currentText, textX, textY);
+        }
+
+        generateBtn.addEventListener('click', function() {
+            if (!imageLoaded) {
+                alert('Please upload an image first.');
+                return;
+            }
+
+            let count = parseInt(cardCountInput.value);
+            if (count < 1 || count > 100) {
+                alert('Card count must be between 1 and 100.');
+                return;
+            }
+
+            generateBtn.disabled = true;
+            generateBtn.innerHTML = '<span class="spinner"></span> Processing...';
+
+            setTimeout(() => {
+                generatedCardsData = [];
+                previewList.innerHTML = '';
+                const fontSize = parseInt(fontSizeRange.value);
+
+                for (let i = 0; i < count; i++) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(uploadedImage, 0, 0);
+
+                    let cardNid = (i === 0) ? nidNumberInput.value.trim() : generateUniqueRandom10Digit();
+                    
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.fillStyle = '#ff0000';
+                    ctx.fillText(cardNid, textX, textY);
+
+                    let dataURL = canvas.toDataURL('image/jpeg', 1.0);
+                    let fileName = `RS_SAAZAD_2026_NID_${cardNid}.jpg`;
+
+                    if (!downloadedHashes.has(cardNid)) {
+                        generatedCardsData.push({ name: fileName, data: dataURL, nid: cardNid });
+                        downloadedHashes.add(cardNid);
+                    }
+
+                    let itemDiv = document.createElement('div');
+                    itemDiv.className = 'preview-item';
+                    itemDiv.innerHTML = `<img src="${dataURL}"><p>Card ${i+1}: ${cardNid}</p>`;
+                    previewList.appendChild(itemDiv);
+                }
+
+                redrawCanvas();
+                generateBtn.disabled = false;
+                generateBtn.innerHTML = 'Generate';
+                downloadBtn.style.display = 'block';
+                alert('All cards generated successfully!');
+            }, 2000);
+        });
+
+        downloadBtn.addEventListener('click', function() {
+            if (generatedCardsData.length === 0) return;
+            let zip = new JSZip();
+
+            generatedCardsData.forEach(item => {
+                let base64Data = item.data.replace(/^data:image\/jpeg;base64,/, "");
+                zip.file(item.name, base64Data, {base64: true});
+            });
+
+            zip.generateAsync({type:"blob"}).then(function(content) {
+                saveAs(content, "RS SAAZAD.zip");
+                alert('All files downloaded successfully into RS SAAZAD folder!');
+            });
+        });
+
+        function getMousePos(evt) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+            const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        function onMouseDown(evt) {
+            if (!imageLoaded) return;
+            const pos = getMousePos(evt);
+            if (pos.x >= textX && pos.x <= textX + textWidth &&
+                pos.y <= textY && pos.y >= textY - textHeight) {
+                isDragging = true;
+            }
+        }
+
+        function onMouseMove(evt) {
+            if (!isDragging || !imageLoaded) return;
+            const pos = getMousePos(evt);
+            textX = pos.x - (textWidth / 2);
+            textY = pos.y + (textHeight / 2);
+            redrawCanvas();
+        }
+
+        function onMouseUp() {
+            isDragging = false;
+        }
+
+        canvas.addEventListener('mousedown', onMouseDown);
+        canvas.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+
+        canvas.addEventListener('touchstart', onMouseDown);
+        canvas.addEventListener('touchmove', onMouseMove);
+        window.addEventListener('touchend', onMouseUp);
+    </script>
+</body>
+</html>
